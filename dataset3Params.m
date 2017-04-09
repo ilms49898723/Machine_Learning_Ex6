@@ -23,11 +23,29 @@ sigma = 0.3;
 %        mean(double(predictions ~= yval))
 %
 
+Cs = [0.01, 0.03, 0.1, 0.3, 1, 3, 10, 30];
+sigmas = [0.01, 0.03, 0.1, 0.3, 1, 3, 10, 30];
 
+minI = -1;
+minJ = -1;
+minE = 1e8;
 
+for i = 1:size(Cs, 2)
+    for j = 1:size(sigmas, 2)
+        kerfun = @(x1, x2) (gaussianKernel(x1, x2, sigmas(j)));
+        model = svmTrain(X, y, Cs(i), kerfun, 1e-6, 20);
+        predicts = svmPredict(model, Xval);
+        error = mean(double(predicts ~= yval));
+        if error < minE
+            minE = error;
+            minI = i;
+            minJ = j;
+        end
+    end
+end
 
-
-
+C = Cs(minI);
+sigma = sigmas(minJ);
 
 % =========================================================================
 
